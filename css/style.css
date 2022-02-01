@@ -1,0 +1,23 @@
+body {
+  background-color: rgb(5, 5, 5);
+  margin: 0;
+  padding: 0;
+
+  background-image: url('/Resources/Images/matrix_background_large.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+#gameArea {
+  border: 2px solid rgb(21, 247, 0);
+  background-color: rgb(5, 5, 5);
+  padding: 0;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
