@@ -15,11 +15,42 @@ const paddle = {
   movement: 5 // How much the paddle will move
 };
 
+let movingLeft = false;
+let movingRight = false;
+
 const paddleColor = 'rgb(240, 240, 240)'
 const matrixGreen = 'rgb(21, 247, 0)';
 
 function gameLoop() {
+  displayPaddle();
+}
+// Listener for moving the paddle
+document.addEventListener('keydown', function (event) {
+  if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
+    return;
+  } else if (event.code === 'ArrowRight') {
+    movingRight = true;
+  } else if (event.code === 'ArrowLeft') {
+    movingLeft = true;
+  }
+});
   
+document.addEventListener('keyup', function (event) {
+  if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
+    return;
+  } else if (event.code === 'ArrowRight') {
+    movingRight = false;
+  } else if (event.code === 'ArrowLeft') {
+    movingLeft = false;
+  }
+});
+
+function updatePaddlePosition() {
+  if (movingRight && paddle.xPos + paddle.width < canvas.width && !movingLeft) {
+    paddle.xPos += paddle.movement;
+  } else if (movingLeft && paddle.xPos > 0 && !movingRight) {
+    paddle.xPos -= paddle.movement;
+  }
 }
 
 // Function to draw rectangle based on parameters
@@ -35,8 +66,16 @@ function displayPaddle() {
 
 // Function to clear the contents of the game area
 function clearGameArea() {
-  gameArea.clearRect(0, 0, gameArea.width, gameArea.height);
+  gameArea.clearRect(0, 0, canvas.width, canvas.height);
 }
-//gameLoop();
-displayPaddle();
+
+function gameLoop() {
+  clearGameArea();
+  updatePaddlePosition();
+  displayPaddle();
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();
+
+// TODO Add canvas scaling?
 
