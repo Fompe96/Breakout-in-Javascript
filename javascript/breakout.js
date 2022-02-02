@@ -23,11 +23,6 @@ let ball = {
   color: 'rgb(255, 255, 255)'
 }
 
-
-
-function gameLoop() {
-  displayPaddle();
-}
 // Listener for moving the paddle
 document.addEventListener('keydown', function (event) {
   if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
