@@ -2,6 +2,7 @@ var canvas = document.getElementById('gameArea');
 var gameArea = canvas.getContext('2d');
 
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
+var lost = false;
 
 let paddle = { // Variables set in scalePaddle()
   paddleWidth: 0,
@@ -20,6 +21,8 @@ let ball = {
   xPos: 0,
   yPos: 0,
   speed: 0,
+  xMovement: 0,
+  yMovement: 0,
   color: 'rgb(255, 255, 255)'
 }
 
@@ -44,23 +47,16 @@ document.addEventListener('keyup', function (event) {
   }
 });
 
+function displayPaddle() {
+  gameArea.fillStyle = paddle.color;
+  gameArea.fillRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
+}
 function updatePaddlePosition() {
   if (paddle.movingRight && paddle.xPos + paddle.width < canvas.width && !paddle.movingLeft) {
     paddle.xPos += paddle.movement;
   } else if (paddle.movingLeft && paddle.xPos > 0 && !paddle.movingRight) {
     paddle.xPos -= paddle.movement;
   }
-}
-
-// Function to draw rectangle based on parameters
-function displayRectangle (xCord, yCord, width, height) {
-  gameArea.fillStyle = matrixGreen;
-  gameArea.fillRect(xCord, yCord, width, height)
-}
-
-function displayPaddle() {
-  gameArea.fillStyle = paddle.color;
-  gameArea.fillRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
 }
 
 function displayBall() {
@@ -71,18 +67,32 @@ function displayBall() {
   gameArea.closePath();
 }
 
+function updateBallPosition() {
+  ball.xPos += ball.xMovement;
+  ball.yPos += ball.yMovement;
+}
+
+function detectBallWallCollisions() {
+  if (ball.xPos + ball.radius >= canvas.width || ball.xPos - ball.radius <= 0) { // Handle x-cordinate collisions
+    ball.xMovement = -ball.xMovement;
+  } if (ball.yPos - ball.radius <= 0) { // Handle y-cordinate collisions
+    ball.yMovement = - ball.yMovement;
+  } if (ball.yPos + ball.radius > canvas.height) {
+    lost = true;
+  }
+}
+
+// Function to draw rectangle based on parameters
+function displayRectangle (xCord, yCord, width, height) {
+  gameArea.fillStyle = matrixGreen;
+  gameArea.fillRect(xCord, yCord, width, height)
+}
+
 // Function to clear the contents of the game area
 function clearGameArea() {
   gameArea.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function gameLoop() {
-  clearGameArea();
-  updatePaddlePosition();
-  displayPaddle();
-  displayBall();
-  requestAnimationFrame(gameLoop);
-}
 // Listen for window resize events
 function setupResizeListener() {
   window.addEventListener('resize', adaptCanvasToWindow, false);
@@ -104,8 +114,9 @@ function scaleBall() {
   ball.radius = canvas.width * 0.025;
   ball.xPos = canvas.width / 2;
   ball.yPos = paddle.yPos - ball.radius;
-  ball.speed = canvas.width * 0.012;
-
+  ball.speed = canvas.width * 0.010;
+  ball.xMovement = ball.speed;
+  ball.yMovement = - ball.speed;
 }
 
 function scalePaddle() {
@@ -116,6 +127,18 @@ function scalePaddle() {
   paddle.xPos = canvas.width / 2 - paddle.width / 2;
   paddle.yPos = ((canvas.height) - paddle.height) - paddle.bottomMargin;
   paddle.movement = canvas.width * 0.012;
+}
+
+function gameLoop() {
+  clearGameArea();
+  displayPaddle();
+  displayBall();
+  updatePaddlePosition();
+  updateBallPosition();
+  detectBallWallCollisions();
+  if (!lost) {
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 setupResizeListener(); // Listen for rescale events
