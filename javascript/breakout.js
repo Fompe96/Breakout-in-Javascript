@@ -1,24 +1,18 @@
-const canvas = document.getElementById('gameArea');
-const gameArea = canvas.getContext('2d');
+var canvas = document.getElementById('gameArea');
+var gameArea = canvas.getContext('2d');
 
-// Constants for determining paddle size based on canvas size
-const paddleWidth = canvas.width * 0.25; 
-const paddleHeight = canvas.height * 0.04;
-const paddleBottomMargin = canvas.height * 0.05;
-
-// Object literal containing all values of the paddle
-const paddle = {
-  xPos: canvas.width / 2 - paddleWidth / 2, // Starting x position of paddle
-  yPos: ((canvas.height) - paddleHeight) - paddleBottomMargin, // Starting y position of paddle
-  width: paddleWidth,
-  height: paddleHeight,
-  movement: 5 // How much the paddle will move
+let paddle = {
+  paddleWidth: 0,
+  paddleHeight: 0,
+  bottomMargin: 0,
+  xPos: 0,
+  yPos: 0,
+  movement: 0,
+  color: 'rgb(240, 240, 240)',
+  movingLeft: false,
+  movingRight: false
 };
 
-let movingLeft = false;
-let movingRight = false;
-
-const paddleColor = 'rgb(240, 240, 240)'
 const matrixGreen = 'rgb(21, 247, 0)';
 
 function gameLoop() {
@@ -29,9 +23,9 @@ document.addEventListener('keydown', function (event) {
   if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
     return;
   } else if (event.code === 'ArrowRight') {
-    movingRight = true;
+    paddle.movingRight = true;
   } else if (event.code === 'ArrowLeft') {
-    movingLeft = true;
+    paddle.movingLeft = true;
   }
 });
   
@@ -39,16 +33,16 @@ document.addEventListener('keyup', function (event) {
   if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
     return;
   } else if (event.code === 'ArrowRight') {
-    movingRight = false;
+    paddle.movingRight = false;
   } else if (event.code === 'ArrowLeft') {
-    movingLeft = false;
+    paddle.movingLeft = false;
   }
 });
 
 function updatePaddlePosition() {
-  if (movingRight && paddle.xPos + paddle.width < canvas.width && !movingLeft) {
+  if (paddle.movingRight && paddle.xPos + paddle.width < canvas.width && !paddle.movingLeft) {
     paddle.xPos += paddle.movement;
-  } else if (movingLeft && paddle.xPos > 0 && !movingRight) {
+  } else if (paddle.movingLeft && paddle.xPos > 0 && !paddle.movingRight) {
     paddle.xPos -= paddle.movement;
   }
 }
@@ -60,7 +54,7 @@ function displayRectangle (xCord, yCord, width, height) {
 }
 
 function displayPaddle() {
-  gameArea.fillStyle = paddleColor;
+  gameArea.fillStyle = paddle.color;
   gameArea.fillRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
 }
 
@@ -75,7 +69,32 @@ function gameLoop() {
   displayPaddle();
   requestAnimationFrame(gameLoop);
 }
-gameLoop();
+// Listen for window resize events
+function setupResizeListener() {
+  window.addEventListener('resize', adaptCanvasToWindow, false);
+}
+// Adapt the canvas to match new window size
+function adaptCanvasToWindow() {
+  if (window.innerWidth > window.innerHeight) { // Landscape dimensions
+    canvas.width = window.innerWidth * 0.20;
+    canvas.height = window.innerHeight * 0.8;
+  } else if (window.innerWidth < window.innerHeight) { // Portrait dimensions
+    canvas.width = window.innerWidth * 0.9;
+    canvas.height = window.innerHeight * 0.7;
+  }
+  scalePaddle(); // Scale the paddle porportionally to canvas size
+}
 
-// TODO Add canvas scaling?
+function scalePaddle() {
+  paddle.width = canvas.width * 0.25;
+  paddle.height = canvas.height * 0.04;
+  paddle.bottomMargin = canvas.height * 0.05;
 
+  paddle.xPos = canvas.width / 2 - paddle.width / 2;
+  paddle.yPos = ((canvas.height) - paddle.height) - paddle.bottomMargin;
+  paddle.movement = canvas.width * 0.012;
+}
+
+setupResizeListener(); // Listen for rescale events
+adaptCanvasToWindow(); // Scale the canvas appropriately for window size
+gameLoop(); // Start the game loop
