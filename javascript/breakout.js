@@ -59,6 +59,22 @@ function updatePaddlePosition() {
   }
 }
 
+function detectBallPaddleCollisions() {
+  if (ball.yPos > paddle.yPos && ball.yPos < paddle.yPos + paddle.height &&
+    ball.xPos > paddle.xPos && ball.xPos < paddle.xPos + paddle.width) {
+    
+    let hitPointOnPaddle = ball.xPos - (paddle.xPos + paddle.width / 2);
+    hitPointOnPaddle = hitPointOnPaddle / (paddle.width / 2); // Convert value to 0-1 interval
+    let angle = hitPointOnPaddle * (Math.PI / 3); // (0 - 1) * 60° to get variable push angles
+
+    ball.xMovement = ball.speed * Math.sin(angle);
+    ball.yMovement = - ball.speed * Math.cos(angle);
+    if (ball.xMovement === 0) {
+      ball.xMovement += 0.1;
+    }
+    }
+}
+
 function displayBall() {
   gameArea.beginPath();
   gameArea.arc(ball.xPos, ball.yPos, ball.radius, 0, Math.PI * 2);
@@ -120,8 +136,8 @@ function scaleBall() {
 }
 
 function scalePaddle() {
-  paddle.width = canvas.width * 0.25;
-  paddle.height = canvas.height * 0.03;
+  paddle.width = canvas.width * 0.3;
+  paddle.height = canvas.height * 0.025;
   paddle.bottomMargin = canvas.height * 0.10;
 
   paddle.xPos = canvas.width / 2 - paddle.width / 2;
@@ -136,6 +152,7 @@ function gameLoop() {
   updatePaddlePosition();
   updateBallPosition();
   detectBallWallCollisions();
+  detectBallPaddleCollisions();
   if (!lost) {
     requestAnimationFrame(gameLoop);
   }
