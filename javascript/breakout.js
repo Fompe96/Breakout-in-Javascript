@@ -1,19 +1,29 @@
 var canvas = document.getElementById('gameArea');
 var gameArea = canvas.getContext('2d');
 
-let paddle = {
+const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
+
+let paddle = { // Variables set in scalePaddle()
   paddleWidth: 0,
   paddleHeight: 0,
   bottomMargin: 0,
   xPos: 0,
   yPos: 0,
   movement: 0,
-  color: 'rgb(240, 240, 240)',
+  color: 'rgb(218, 15, 140)',
   movingLeft: false,
   movingRight: false
 };
 
-const matrixGreen = 'rgb(21, 247, 0)';
+let ball = {
+  radius: 0,
+  xPos: 0,
+  yPos: 0,
+  speed: 0,
+  color: 'rgb(255, 255, 255)'
+}
+
+
 
 function gameLoop() {
   displayPaddle();
@@ -58,6 +68,14 @@ function displayPaddle() {
   gameArea.fillRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
 }
 
+function displayBall() {
+  gameArea.beginPath();
+  gameArea.arc(ball.xPos, ball.yPos, ball.radius, 0, Math.PI * 2);
+  gameArea.fillStyle = ball.color;
+  gameArea.fill();
+  gameArea.closePath();
+}
+
 // Function to clear the contents of the game area
 function clearGameArea() {
   gameArea.clearRect(0, 0, canvas.width, canvas.height);
@@ -67,6 +85,7 @@ function gameLoop() {
   clearGameArea();
   updatePaddlePosition();
   displayPaddle();
+  displayBall();
   requestAnimationFrame(gameLoop);
 }
 // Listen for window resize events
@@ -83,12 +102,21 @@ function adaptCanvasToWindow() {
     canvas.height = window.innerHeight * 0.7;
   }
   scalePaddle(); // Scale the paddle porportionally to canvas size
+  scaleBall();// Scale the ball porportionally to canvas size
+}
+
+function scaleBall() {
+  ball.radius = canvas.width * 0.025;
+  ball.xPos = canvas.width / 2;
+  ball.yPos = paddle.yPos - ball.radius;
+  ball.speed = canvas.width * 0.012;
+
 }
 
 function scalePaddle() {
   paddle.width = canvas.width * 0.25;
-  paddle.height = canvas.height * 0.04;
-  paddle.bottomMargin = canvas.height * 0.05;
+  paddle.height = canvas.height * 0.03;
+  paddle.bottomMargin = canvas.height * 0.10;
 
   paddle.xPos = canvas.width / 2 - paddle.width / 2;
   paddle.yPos = ((canvas.height) - paddle.height) - paddle.bottomMargin;
