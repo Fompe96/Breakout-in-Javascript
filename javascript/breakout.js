@@ -4,6 +4,9 @@ var gameArea = canvas.getContext('2d');
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
 var lost = false;
 
+const numberOfRows = 5;
+const numberOfColumns = 8;
+
 let paddle = { // Variables set in scalePaddle()
   paddleWidth: 0,
   paddleHeight: 0,
@@ -25,6 +28,18 @@ let ball = {
   yMovement: 0,
   color: 'rgb(255, 255, 255)'
 }
+
+let bricks = [];
+
+let brick = {
+  width: 0,
+  height: 0,
+  color: matrixGreen,
+  xPos: 0,
+  yPos: 0,
+  destroyed: false,
+  topMargin: 0
+};
 
 // Listener for moving the paddle
 document.addEventListener('keydown', function (event) {
@@ -98,10 +113,34 @@ function detectBallWallCollisions() {
   }
 }
 
-// Function to draw rectangle based on parameters
-function displayRectangle (xCord, yCord, width, height) {
-  gameArea.fillStyle = matrixGreen;
-  gameArea.fillRect(xCord, yCord, width, height)
+function generateBricks() {
+  for (let row = 0; row < numberOfRows; row++) {
+    bricks[row] = [];
+    for (let column = 0; column < numberOfColumns; column++) {
+      bricks[row][column] = {
+        width: brick.width,
+        height: brick.height,
+        color: brick.color,
+        xPos: column * brick.width,
+        yPos: row * brick.height + brick.topMargin,
+        destroyed: false
+      }
+    }
+  }
+}
+
+function displayBricks() {
+  for (let row = 0; row < numberOfRows; row++) {
+    for (let column = 0; column < numberOfColumns; column++) {
+      if (!bricks[row][column].destroyed) {
+        let brickToDisplay = bricks[row][column];
+        gameArea.fillStyle = brickToDisplay.color;
+        gameArea.fillRect(brickToDisplay.xPos, brickToDisplay.yPos, brickToDisplay.width, brickToDisplay.height);
+        gameArea.strokeStyle = '#000000';
+        gameArea.strokeRect(brickToDisplay.xPos, brickToDisplay.yPos, brickToDisplay.width, brickToDisplay.height);
+      }
+    }
+  }
 }
 
 // Function to clear the contents of the game area
@@ -123,7 +162,8 @@ function adaptCanvasToWindow() {
     canvas.height = window.innerHeight * 0.7;
   }
   scalePaddle(); // Scale the paddle porportionally to canvas size
-  scaleBall();// Scale the ball porportionally to canvas size
+  scaleBall();  // Scale the ball porportionally to canvas size
+  scaleBricks();   // Scale the bricks porportionally to canvas size
 }
 
 function scaleBall() {
@@ -145,14 +185,34 @@ function scalePaddle() {
   paddle.movement = canvas.width * 0.012;
 }
 
-function gameLoop() {
-  clearGameArea();
+function scaleBricks() {
+  brick.width = canvas.width / numberOfColumns;
+  brick.height = paddle.height;
+  brick.topMargin = canvas.height * 0.075
+}
+
+function displayGraphics() {
   displayPaddle();
   displayBall();
+  displayBricks();
+}
+
+function updateMovingComponentsPositions() {
   updatePaddlePosition();
   updateBallPosition();
+}
+
+function detectCollisions() {
   detectBallWallCollisions();
   detectBallPaddleCollisions();
+}
+
+function gameLoop() {
+  clearGameArea();
+  generateBricks();
+  displayGraphics();
+  updateMovingComponentsPositions();
+  detectCollisions();
   if (!lost) {
     requestAnimationFrame(gameLoop);
   }
