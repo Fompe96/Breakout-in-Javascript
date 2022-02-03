@@ -4,7 +4,7 @@ var gameArea = canvas.getContext('2d');
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
 var lost = false;
 
-const numberOfRows = 5;
+const numberOfRows = 6;
 const numberOfColumns = 8;
 
 let paddle = { // Variables set in scalePaddle()
@@ -41,6 +41,8 @@ let brick = {
   topMargin: 0
 };
 
+const brickColors = ['rgb(89, 255, 74)', 'rgb(15, 158, 241)', 'rgb(231, 247, 0)'];
+
 // Listener for moving the paddle
 document.addEventListener('keydown', function (event) {
   if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
@@ -66,6 +68,7 @@ function displayPaddle() {
   gameArea.fillStyle = paddle.color;
   gameArea.fillRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
 }
+
 function updatePaddlePosition() {
   if (paddle.movingRight && paddle.xPos + paddle.width < canvas.width && !paddle.movingLeft) {
     paddle.xPos += paddle.movement;
@@ -87,7 +90,7 @@ function detectBallPaddleCollisions() {
     if (ball.xMovement === 0) {
       ball.xMovement += 0.1;
     }
-    }
+  }
 }
 
 function displayBall() {
@@ -134,6 +137,13 @@ function displayBricks() {
     for (let column = 0; column < numberOfColumns; column++) {
       if (!bricks[row][column].destroyed) {
         let brickToDisplay = bricks[row][column];
+        if (row === 0 || row === 1) {
+          brickToDisplay.color = brickColors[0];
+        } else if (row === 2 || row === 3) {
+          brickToDisplay.color = brickColors[1];
+        } else {
+          brickToDisplay.color = brickColors[2];
+        }
         gameArea.fillStyle = brickToDisplay.color;
         gameArea.fillRect(brickToDisplay.xPos, brickToDisplay.yPos, brickToDisplay.width, brickToDisplay.height);
         gameArea.strokeStyle = '#000000';
