@@ -1,6 +1,7 @@
 var canvas = document.getElementById('gameArea');
 var gameArea = canvas.getContext('2d');
 
+var score = 0;
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
 var lost = false;
 
@@ -39,7 +40,8 @@ let brick = {
   yPos: 0,
   destroyed: false,
   topMargin: 0,
-  distance: 0
+  distance: 0,
+  life: 0
 };
 
 const brickColors = ['rgb(89, 255, 74)', 'rgb(15, 158, 241)', 'rgb(231, 247, 0)'];
@@ -121,14 +123,21 @@ function generateBricks() {
   for (let row = 0; row < numberOfRows; row++) {
     bricks[row] = [];
     for (let column = 0; column < numberOfColumns; column++) {
-      bricks[row][column] = {
+      let generatedBrick = {
         width: brick.width,
         height: brick.height,
-        color: brick.color,
         xPos: column * (brick.width + brick.distance) + brick.distance,
         yPos: row * (brick.height + brick.distance) + brick.distance + brick.topMargin,
         destroyed: false
       }
+      if (row === 0 || row === 1) {
+        generatedBrick.life = 3;
+      } else if (row === 2 || row === 3) {
+        generatedBrick.life = 2;
+      } else {
+        generatedBrick.life = 1;
+      }
+      bricks[row][column] = generatedBrick;
     }
   }
 }
@@ -138,11 +147,11 @@ function displayBricks() {
     for (let column = 0; column < numberOfColumns; column++) {
       if (!bricks[row][column].destroyed) {
         let brickToDisplay = bricks[row][column];
-        if (row === 0 || row === 1) {
+        if (brickToDisplay.life === 3) {
           brickToDisplay.color = brickColors[0];
-        } else if (row === 2 || row === 3) {
+        } else if (brickToDisplay.life === 2) {
           brickToDisplay.color = brickColors[1];
-        } else {
+        } else if (brickToDisplay.life === 1) {
           brickToDisplay.color = brickColors[2];
         }
         gameArea.fillStyle = brickToDisplay.color;
@@ -166,7 +175,12 @@ function detectBallBrickCollisions() {
           ball.yPos - ball.radius / 2 <= brickToCheck.yPos + brickToCheck.height) {
 
           ball.yMovement = - ball.yMovement;
-          brickToCheck.destroyed = true;
+          brickToCheck.life--;
+          if (brickToCheck.life === 0) {
+            brickToCheck.destroyed = true;
+            score += 10;
+            console.log('Score: ' + score)
+          }
         }
       }
     }
