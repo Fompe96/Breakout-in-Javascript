@@ -54,7 +54,7 @@ document.addEventListener('keydown', function (event) {
     paddle.movingLeft = true;
   }
 });
-  
+
 document.addEventListener('keyup', function (event) {
   if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
     return;
@@ -81,7 +81,7 @@ function updatePaddlePosition() {
 function detectBallPaddleCollisions() {
   if (ball.yPos > paddle.yPos && ball.yPos < paddle.yPos + paddle.height &&
     ball.xPos > paddle.xPos && ball.xPos < paddle.xPos + paddle.width) {
-    
+
     let hitPointOnPaddle = ball.xPos - (paddle.xPos + paddle.width / 2);
     hitPointOnPaddle = hitPointOnPaddle / (paddle.width / 2); // Convert value to 0-1 interval
     let angle = hitPointOnPaddle * (Math.PI / 3); // (0 - 1) * 60° to get variable push angles
@@ -125,8 +125,8 @@ function generateBricks() {
         width: brick.width,
         height: brick.height,
         color: brick.color,
-        xPos: column * brick.width,
-        yPos: row * brick.height + brick.topMargin,
+        xPos: column * (brick.width + brick.distance) + brick.distance,
+        yPos: row * (brick.height + brick.distance) + brick.distance + brick.topMargin,
         destroyed: false
       }
     }
@@ -159,11 +159,12 @@ function detectBallBrickCollisions() {
     for (let column = 0; column < numberOfColumns; column++) {
       let brickToCheck = bricks[row][column];
       if (!brickToCheck.destroyed) {
-        if (ball.xPos + ball.radius > brickToCheck.xPos &&
-          ball.xPos - ball.radius < brickToCheck.xPos + brickToCheck.width &&
-          ball.yPos + ball.radius > brickToCheck.yPos &&
-          ball.yPos - ball.radius < brickToCheck.yPos + brickToCheck.height) {
-          
+        // Checks to see if the ball hits a brick
+        if (ball.xPos + ball.radius / 2 >= brickToCheck.xPos &&
+          ball.xPos - ball.radius / 2 <= brickToCheck.xPos + brickToCheck.width &&
+          ball.yPos + ball.radius / 2 >= brickToCheck.yPos &&
+          ball.yPos - ball.radius / 2 <= brickToCheck.yPos + brickToCheck.height) {
+
           ball.yMovement = - ball.yMovement;
           brickToCheck.destroyed = true;
         }
@@ -184,7 +185,7 @@ function setupResizeListener() {
 // Adapt the canvas to match new window size
 function adaptCanvasToWindow() {
   if (window.innerWidth > window.innerHeight) { // Landscape dimensions
-    canvas.width = window.innerWidth * 0.20;
+    canvas.width = window.innerWidth * 0.25;
     canvas.height = window.innerHeight * 0.8;
   } else if (window.innerWidth < window.innerHeight) { // Portrait dimensions
     canvas.width = window.innerWidth * 0.9;
@@ -216,9 +217,10 @@ function scalePaddle() {
 }
 
 function scaleBricks() {
-  brick.width = canvas.width / numberOfColumns; 
-  brick.height = paddle.height;
+  brick.width = canvas.width / (numberOfColumns + 2);
+  brick.height = paddle.height * 1.2;
   brick.topMargin = canvas.height * 0.075;
+  brick.distance = ((brick.width * 2) / (numberOfColumns + 1))
 }
 
 function displayGraphics() {
