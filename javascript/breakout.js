@@ -38,7 +38,8 @@ let brick = {
   xPos: 0,
   yPos: 0,
   destroyed: false,
-  topMargin: 0
+  topMargin: 0,
+  distance: 0
 };
 
 const brickColors = ['rgb(89, 255, 74)', 'rgb(15, 158, 241)', 'rgb(231, 247, 0)'];
@@ -153,6 +154,24 @@ function displayBricks() {
   }
 }
 
+function detectBallBrickCollisions() {
+  for (let row = 0; row < numberOfRows; row++) {
+    for (let column = 0; column < numberOfColumns; column++) {
+      let brickToCheck = bricks[row][column];
+      if (!brickToCheck.destroyed) {
+        if (ball.xPos + ball.radius > brickToCheck.xPos &&
+          ball.xPos - ball.radius < brickToCheck.xPos + brickToCheck.width &&
+          ball.yPos + ball.radius > brickToCheck.yPos &&
+          ball.yPos - ball.radius < brickToCheck.yPos + brickToCheck.height) {
+          
+          ball.yMovement = - ball.yMovement;
+          brickToCheck.destroyed = true;
+        }
+      }
+    }
+  }
+}
+
 // Function to clear the contents of the game area
 function clearGameArea() {
   gameArea.clearRect(0, 0, canvas.width, canvas.height);
@@ -174,10 +193,11 @@ function adaptCanvasToWindow() {
   scalePaddle(); // Scale the paddle porportionally to canvas size
   scaleBall();  // Scale the ball porportionally to canvas size
   scaleBricks();   // Scale the bricks porportionally to canvas size
+  generateBricks();
 }
 
 function scaleBall() {
-  ball.radius = canvas.width * 0.025;
+  ball.radius = canvas.width * 0.015;
   ball.xPos = canvas.width / 2;
   ball.yPos = paddle.yPos - ball.radius;
   ball.speed = canvas.width * 0.010;
@@ -196,9 +216,9 @@ function scalePaddle() {
 }
 
 function scaleBricks() {
-  brick.width = canvas.width / numberOfColumns;
+  brick.width = canvas.width / numberOfColumns; 
   brick.height = paddle.height;
-  brick.topMargin = canvas.height * 0.075
+  brick.topMargin = canvas.height * 0.075;
 }
 
 function displayGraphics() {
@@ -215,11 +235,11 @@ function updateMovingComponentsPositions() {
 function detectCollisions() {
   detectBallWallCollisions();
   detectBallPaddleCollisions();
+  detectBallBrickCollisions();
 }
 
 function gameLoop() {
   clearGameArea();
-  generateBricks();
   displayGraphics();
   updateMovingComponentsPositions();
   detectCollisions();
