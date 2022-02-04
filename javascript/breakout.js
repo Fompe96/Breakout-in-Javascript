@@ -5,6 +5,7 @@ var score = 0;
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
 var lost = false;
 
+var levelTwoLoaded = false;
 const numberOfRows = 8;
 const numberOfColumns = 8;
 
@@ -79,6 +80,11 @@ function updatePaddlePosition() {
   }
 }
 
+function resetPaddlePosition() {
+  paddle.xPos = canvas.width / 2 - paddle.width / 2;
+  paddle.yPos = ((canvas.height) - paddle.height) - paddle.bottomMargin;
+}
+
 function detectBallPaddleCollisions() {
   if (ball.yPos > paddle.yPos && ball.yPos < paddle.yPos + paddle.height &&
     ball.xPos > paddle.xPos && ball.xPos < paddle.xPos + paddle.width) {
@@ -106,6 +112,13 @@ function displayBall() {
 function updateBallPosition() {
   ball.xPos += ball.xMovement;
   ball.yPos += ball.yMovement;
+}
+
+function resetBallPosition() {
+  ball.xPos = canvas.width / 2;
+  ball.yPos = paddle.yPos - ball.radius;
+  ball.xMovement = ball.speed;
+  ball.yMovement = - ball.speed;
 }
 
 function detectBallWallCollisions() {
@@ -173,12 +186,29 @@ function detectBallBrickCollisions() {
          
           brickToCheck.destroyed = true;
           score += 10;
-          console.log('Score: ' + score)
-  
+          console.log('Score: ' + score);
         }
       }
     }
   }
+}
+
+function checkLevelCompletion() {
+  if (score === (numberOfRows * numberOfColumns * 10) &&  levelTwoLoaded === false) {
+    startLevelTwo();
+    levelTwoLoaded = true;
+  }
+}
+
+function startLevelTwo() {
+  resetPaddlePosition();
+  resetBallPosition();
+  generateBricks();
+  ball.speed = ball.speed * 1.5;
+  ball.xMovement = ball.speed;
+  ball.yMovement = ball.speed;
+
+  paddle.width *= 0.75;
 }
 
 // Function to clear the contents of the game area
@@ -216,7 +246,7 @@ function scaleBall() {
 
 function scalePaddle() {
   paddle.width = canvas.width * 0.3;
-  paddle.height = canvas.height * 0.025;
+  paddle.height = canvas.height * 0.018;
   paddle.bottomMargin = canvas.height * 0.10;
 
   paddle.xPos = canvas.width / 2 - paddle.width / 2;
@@ -226,7 +256,7 @@ function scalePaddle() {
 
 function scaleBricks() {
   brick.width = canvas.width / (numberOfColumns + 1);
-  brick.height = paddle.height * 0.8;
+  brick.height = canvas.height * 0.025 * 0.8;
   brick.topMargin = canvas.height * 0.075;
   brick.distance = ((brick.width) / (numberOfColumns + 1))
 }
@@ -253,6 +283,7 @@ function gameLoop() {
   displayGraphics();
   updateMovingComponentsPositions();
   detectCollisions();
+  checkLevelCompletion();
   if (!lost) {
     requestAnimationFrame(gameLoop);
   }
