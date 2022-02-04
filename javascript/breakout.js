@@ -5,7 +5,7 @@ var score = 0;
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
 var lost = false;
 
-const numberOfRows = 6;
+const numberOfRows = 8;
 const numberOfColumns = 8;
 
 let paddle = { // Variables set in scalePaddle()
@@ -40,11 +40,10 @@ let brick = {
   yPos: 0,
   destroyed: false,
   topMargin: 0,
-  distance: 0,
-  life: 0
+  distance: 0
 };
 
-const brickColors = ['rgb(89, 255, 74)', 'rgb(15, 158, 241)', 'rgb(231, 247, 0)'];
+const brickColors = ['rgb(255, 48, 48)','rgb(89, 255, 74)', 'rgb(15, 158, 241)', 'rgb(231, 247, 0)'];
 
 // Listener for moving the paddle
 document.addEventListener('keydown', function (event) {
@@ -130,12 +129,14 @@ function generateBricks() {
         yPos: row * (brick.height + brick.distance) + brick.distance + brick.topMargin,
         destroyed: false
       }
-      if (row === 0 || row === 1) {
-        generatedBrick.life = 3;
-      } else if (row === 2 || row === 3) {
-        generatedBrick.life = 2;
+      if (row < 2) {
+        generatedBrick.color = brickColors[0];
+      } else if (row < 4) {
+        generatedBrick.color = brickColors[1];
+      } else if (row < 6) {
+        generatedBrick.color = brickColors[2];
       } else {
-        generatedBrick.life = 1;
+        generatedBrick.color = brickColors[3];
       }
       bricks[row][column] = generatedBrick;
     }
@@ -147,13 +148,7 @@ function displayBricks() {
     for (let column = 0; column < numberOfColumns; column++) {
       if (!bricks[row][column].destroyed) {
         let brickToDisplay = bricks[row][column];
-        if (brickToDisplay.life === 3) {
-          brickToDisplay.color = brickColors[0];
-        } else if (brickToDisplay.life === 2) {
-          brickToDisplay.color = brickColors[1];
-        } else if (brickToDisplay.life === 1) {
-          brickToDisplay.color = brickColors[2];
-        }
+        
         gameArea.fillStyle = brickToDisplay.color;
         gameArea.fillRect(brickToDisplay.xPos, brickToDisplay.yPos, brickToDisplay.width, brickToDisplay.height);
         gameArea.strokeStyle = '#000000';
@@ -175,12 +170,11 @@ function detectBallBrickCollisions() {
           ball.yPos - ball.radius / 2 <= brickToCheck.yPos + brickToCheck.height) {
 
           ball.yMovement = - ball.yMovement;
-          brickToCheck.life--;
-          if (brickToCheck.life === 0) {
-            brickToCheck.destroyed = true;
-            score += 10;
-            console.log('Score: ' + score)
-          }
+         
+          brickToCheck.destroyed = true;
+          score += 10;
+          console.log('Score: ' + score)
+  
         }
       }
     }
@@ -215,7 +209,7 @@ function scaleBall() {
   ball.radius = canvas.width * 0.015;
   ball.xPos = canvas.width / 2;
   ball.yPos = paddle.yPos - ball.radius;
-  ball.speed = canvas.width * 0.010;
+  ball.speed = ((canvas.width + canvas.height) / 2) * 0.006;
   ball.xMovement = ball.speed;
   ball.yMovement = - ball.speed;
 }
@@ -231,10 +225,10 @@ function scalePaddle() {
 }
 
 function scaleBricks() {
-  brick.width = canvas.width / (numberOfColumns + 2);
-  brick.height = paddle.height * 1.2;
+  brick.width = canvas.width / (numberOfColumns + 1);
+  brick.height = paddle.height * 0.8;
   brick.topMargin = canvas.height * 0.075;
-  brick.distance = ((brick.width * 2) / (numberOfColumns + 1))
+  brick.distance = ((brick.width) / (numberOfColumns + 1))
 }
 
 function displayGraphics() {
