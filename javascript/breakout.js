@@ -1,13 +1,16 @@
 var canvas = document.getElementById('gameArea');
 var gameArea = canvas.getContext('2d');
 
+var gameOver = false;
 var score = 0;
+let turns = 3;
+
 const matrixGreen = 'rgb(21, 247, 0)'; // Theme color
-var lost = false;
 
 var levelTwoLoaded = false;
 const numberOfRows = 8;
 const numberOfColumns = 8;
+
 
 let paddle = { // Variables set in scalePaddle()
   paddleWidth: 0,
@@ -127,7 +130,13 @@ function detectBallWallCollisions() {
   } if (ball.yPos - ball.radius <= 0) { // Handle y-cordinate collisions
     ball.yMovement = - ball.yMovement;
   } if (ball.yPos + ball.radius > canvas.height) {
-    lost = true;
+    if (turns === 1) {
+      gameOver = true;
+    } else {
+      turns--;
+      resetPaddlePosition();
+      resetBallPosition();
+    }
   }
 }
 
@@ -284,7 +293,7 @@ function gameLoop() {
   updateMovingComponentsPositions();
   detectCollisions();
   checkLevelCompletion();
-  if (!lost) {
+  if (!gameOver) {
     requestAnimationFrame(gameLoop);
   }
 }
