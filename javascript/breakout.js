@@ -2,6 +2,7 @@ var canvas = document.getElementById('gameArea');
 var gameArea = canvas.getContext('2d');
 
 var gameOver = false;
+var victory = false;
 var score = 0;
 let turns = 3;
 
@@ -187,16 +188,21 @@ function detectBallBrickCollisions() {
       let brickToCheck = bricks[row][column];
       if (!brickToCheck.destroyed) {
         // Checks to see if the ball hits a brick
-        if (ball.xPos + ball.radius / 2 >= brickToCheck.xPos &&
-          ball.xPos - ball.radius / 2 <= brickToCheck.xPos + brickToCheck.width &&
-          ball.yPos + ball.radius / 2 >= brickToCheck.yPos &&
-          ball.yPos - ball.radius / 2 <= brickToCheck.yPos + brickToCheck.height) {
+        if (ball.xPos + ball.radius / 3 >= brickToCheck.xPos &&
+          ball.xPos - ball.radius / 3 <= brickToCheck.xPos + brickToCheck.width &&
+          ball.yPos + ball.radius / 3 >= brickToCheck.yPos &&
+          ball.yPos - ball.radius / 3 <= brickToCheck.yPos + brickToCheck.height) {
 
           ball.yMovement = - ball.yMovement;
          
           brickToCheck.destroyed = true;
           score += 10;
           console.log('Score: ' + score);
+
+          if (score === (numberOfRows * numberOfColumns * 10) * 2) {
+            victory = true;
+            gameOver = true;
+          }
         }
       }
     }
@@ -285,6 +291,31 @@ function displayTurns() {
   gameArea.fillText('Turns: ' + turns, canvas.width - ((canvas.width + canvas.height / 2) * 0.15), (canvas.width + canvas.height / 2) * 0.04);
 }
 
+function displayGameOverScreen() {
+  
+  if (victory) { // The game was won
+    document.body.innerHTML += `<div id="gameOverWindow"">
+    <h1>You win!</h1>
+    <br>
+    <h2>Score: ${score}</h2>
+    <br>
+    <h3 id="playAgain">Play again?</h3>
+   </div>`;
+  } else { // Game was lost
+    document.body.innerHTML += `<div id="gameOverWindow"">
+    <h1>Game over!</h1>
+    <br>
+    <h2>Score: ${score}</h2>
+    <br>
+    <h3 id="playAgain">Play again?</h3>
+    </div>`;
+  }
+  document.getElementById('playAgain').addEventListener('click', () => {
+    location.reload();
+  });
+}
+
+
 function displayGraphics() {
   displayPaddle();
   displayBall();
@@ -310,8 +341,11 @@ function gameLoop() {
   detectCollisions();
   displayGraphics();
   checkLevelCompletion();
+  //gameOver = true;
   if (!gameOver) {
     requestAnimationFrame(gameLoop);
+  } else {
+    displayGameOverScreen();
   }
 }
 
