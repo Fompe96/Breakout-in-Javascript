@@ -131,6 +131,7 @@ function detectBallWallCollisions() {
     ball.yMovement = - ball.yMovement;
   } if (ball.yPos + ball.radius > canvas.height) {
     if (turns === 1) {
+      turns--;
       gameOver = true;
     } else {
       turns--;
@@ -270,10 +271,26 @@ function scaleBricks() {
   brick.distance = ((brick.width) / (numberOfColumns + 1))
 }
 
+function displayScore() {
+  fontSize = (canvas.width + canvas.height / 2) * 0.04;
+  gameArea.fillStyle = '#FFF';
+  gameArea.font =  fontSize + 'px ' + 'Germania One ';
+  gameArea.fillText('Score: ' + score, (canvas.width + canvas.height / 2) * 0.01, (canvas.width + canvas.height / 2) * 0.04);
+}
+
+function displayTurns() {
+  fontSize = (canvas.width + canvas.height / 2) * 0.04;
+  gameArea.fillStyle = '#FFF';
+  gameArea.font = fontSize + 'px ' + 'Germania One ';
+  gameArea.fillText('Turns: ' + turns, canvas.width - ((canvas.width + canvas.height / 2) * 0.15), (canvas.width + canvas.height / 2) * 0.04);
+}
+
 function displayGraphics() {
   displayPaddle();
   displayBall();
   displayBricks();
+  displayScore();
+  displayTurns();
 }
 
 function updateMovingComponentsPositions() {
@@ -289,9 +306,9 @@ function detectCollisions() {
 
 function gameLoop() {
   clearGameArea();
-  displayGraphics();
   updateMovingComponentsPositions();
   detectCollisions();
+  displayGraphics();
   checkLevelCompletion();
   if (!gameOver) {
     requestAnimationFrame(gameLoop);
