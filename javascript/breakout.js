@@ -292,13 +292,18 @@ function displayTurns() {
 }
 
 function displayGameOverScreen() {
-  
+  let highscores = JSON.parse(localStorage.getItem('highscores'));
+  if (highscores === null) {
+    highscores = [0, 0, 0];
+  }
   if (victory) { // The game was won
     document.body.innerHTML += `<div id="gameOverWindow"">
     <h1>You win!</h1>
     <br>
     <h2>Score: ${score}</h2>
-    <br>
+    <h2>1st: ${highscores[0]}</h2>
+    <h2>2nd: ${highscores[1]}</h2>
+    <h2>3rd: ${highscores[2]}</h2>
     <h3 id="playAgain">Play again?</h3>
    </div>`;
   } else { // Game was lost
@@ -306,6 +311,9 @@ function displayGameOverScreen() {
     <h1>Game over!</h1>
     <br>
     <h2>Score: ${score}</h2>
+    <h2>1st: ${highscores[0]}</h2>
+    <h2>2nd: ${highscores[1]}</h2>
+    <h2>3rd: ${highscores[2]}</h2>
     <br>
     <h3 id="playAgain">Play again?</h3>
     </div>`;
@@ -313,6 +321,28 @@ function displayGameOverScreen() {
   document.getElementById('playAgain').addEventListener('click', () => {
     location.reload();
   });
+  updateHighscores();
+}
+
+function updateHighscores() {
+  let updatedHighscores;
+  let highscores = JSON.parse(localStorage.getItem('highscores'));
+  if (highscores === null) {
+    highscores = [];
+  }
+  highscores.push(score);
+  highscores.sort(function (a, b) {
+    return a - b;
+  });
+  highscores.reverse();
+  console.log(highscores);
+  if (highscores.length > 3) {
+    updatedHighscores = [highscores[0], highscores[1], highscores[2]]
+  } else {
+    updatedHighscores = highscores;
+  }
+  console.log(updatedHighscores);
+  localStorage.setItem('highscores', JSON.stringify(updatedHighscores));
 }
 
 
@@ -341,7 +371,6 @@ function gameLoop() {
   detectCollisions();
   displayGraphics();
   checkLevelCompletion();
-  //gameOver = true;
   if (!gameOver) {
     requestAnimationFrame(gameLoop);
   } else {
