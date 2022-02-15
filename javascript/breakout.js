@@ -12,6 +12,10 @@ var levelTwoLoaded = false;
 const numberOfRows = 8;
 const numberOfColumns = 8;
 
+const BRICK_AND_WALL_COLLISION_SOUND = new Audio();
+const PADDLE_COLLISION_SOUND = new Audio();
+const LEVEL_UP_SOUND = new Audio();
+
 
 let paddle = { // Variables set in scalePaddle()
   paddleWidth: 0,
@@ -102,6 +106,7 @@ function detectBallPaddleCollisions() {
     if (ball.xMovement === 0) {
       ball.xMovement += 0.1;
     }
+    PADDLE_COLLISION_SOUND.play();
   }
 }
 
@@ -128,8 +133,10 @@ function resetBallPosition() {
 function detectBallWallCollisions() {
   if (ball.xPos + ball.radius >= canvas.width || ball.xPos - ball.radius <= 0) { // Handle x-cordinate collisions
     ball.xMovement = -ball.xMovement;
+    BRICK_AND_WALL_COLLISION_SOUND.play();
   } if (ball.yPos - ball.radius <= 0) { // Handle y-cordinate collisions
     ball.yMovement = - ball.yMovement;
+    BRICK_AND_WALL_COLLISION_SOUND.play();
   } if (ball.yPos + ball.radius > canvas.height) {
     if (turns === 1) {
       turns--;
@@ -188,13 +195,13 @@ function detectBallBrickCollisions() {
       let brickToCheck = bricks[row][column];
       if (!brickToCheck.destroyed) {
         // Checks to see if the ball hits a brick
-        if (ball.xPos + ball.radius / 3 >= brickToCheck.xPos &&
-          ball.xPos - ball.radius / 3 <= brickToCheck.xPos + brickToCheck.width &&
-          ball.yPos + ball.radius / 3 >= brickToCheck.yPos &&
-          ball.yPos - ball.radius / 3 <= brickToCheck.yPos + brickToCheck.height) {
+        if (ball.xPos + ball.radius / 2 >= brickToCheck.xPos &&
+          ball.xPos - ball.radius / 2 <= brickToCheck.xPos + brickToCheck.width &&
+          ball.yPos + ball.radius / 2 >= brickToCheck.yPos &&
+          ball.yPos - ball.radius / 2 <= brickToCheck.yPos + brickToCheck.height) {
 
           ball.yMovement = - ball.yMovement;
-         
+          BRICK_AND_WALL_COLLISION_SOUND.play();
           brickToCheck.destroyed = true;
           score += 10;
           console.log('Score: ' + score);
@@ -217,6 +224,7 @@ function checkLevelCompletion() {
 }
 
 function startLevelTwo() {
+  LEVEL_UP_SOUND.play();
   resetPaddlePosition();
   resetBallPosition();
   generateBricks();
@@ -365,6 +373,12 @@ function detectCollisions() {
   detectBallBrickCollisions();
 }
 
+function setupGameSounds() {
+  PADDLE_COLLISION_SOUND.src = "/Resources/Sounds/paddleHit.wav";
+  BRICK_AND_WALL_COLLISION_SOUND.src = "/Resources/Sounds/brickWallHit.wav";
+  LEVEL_UP_SOUND.src = "/Resources/Sounds/levelUp.wav";
+}
+
 function gameLoop() {
   clearGameArea();
   updateMovingComponentsPositions();
@@ -380,4 +394,5 @@ function gameLoop() {
 
 setupResizeListener(); // Listen for rescale events
 adaptCanvasToWindow(); // Scale the canvas appropriately for window size
+setupGameSounds();
 gameLoop(); // Start the game loop
